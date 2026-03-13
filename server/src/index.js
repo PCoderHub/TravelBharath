@@ -1,5 +1,7 @@
-const express = require('express');
+const express = require("express");
+const { dbConnect } = require("./config/db");
 const app = express();
+dbConnect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
