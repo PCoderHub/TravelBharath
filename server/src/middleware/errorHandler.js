@@ -5,7 +5,17 @@ const errorHandler = (err, req, res, next) => {
 
   const message = err.message || "Internal Server error";
 
-  logger.error(message, err);
+  const requestContext = {
+    method: req.method,
+    path: req.originalUrl,
+    body: req.body,
+    params: req.params,
+    query: req.query,
+    ip: req.ip,
+    user: req.user?.id || "unauthenticated",
+  };
+
+  logger.error(message, { error: err, request: requestContext });
 
   if (err.isOperational) {
     return res.status(statusCode).json({
