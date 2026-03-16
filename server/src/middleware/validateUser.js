@@ -1,6 +1,6 @@
 const { createError } = require("../utils/createError");
 
-exports.validateUser = (req, res, next) => {
+exports.validateRegisteringUser = (req, res, next) => {
   if (!req.body) {
     return next(createError("No data found", 400));
   }
@@ -21,5 +21,17 @@ exports.validateUser = (req, res, next) => {
       ),
     );
   }
+  next();
+};
+
+exports.validateLoginUser = (req, res, next) => {
+  if (!req.body) {
+    return next(createError("No data found", 400));
+  }
+
+  if (!req.body.email || !req.body.password) {
+    return next(createError("All fields are required", 400));
+  }
+
   next();
 };

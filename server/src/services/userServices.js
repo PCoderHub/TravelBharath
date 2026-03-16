@@ -5,9 +5,11 @@ const saveUser = async (user) => {
   return savedUser;
 };
 
-const getUserByEmail = async (email) => {
-  const user = await User.findOne({ email });
-  return user;
+const getUserByEmail = async (email, withPassword = false) => {
+  const user = User.findOne({ email });
+
+  if (withPassword) user.select("+password");
+  return await user;
 };
 
 module.exports = {

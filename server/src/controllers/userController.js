@@ -1,7 +1,11 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const { saveUser, getUserByEmail } = require("../services/userServices");
 const { createError } = require("../utils/createError");
-const { createPasswordHash } = require("../utils/passwordManagement");
+const {
+  createPasswordHash,
+  comparePasswordHash,
+} = require("../utils/passwordManagement");
+const { getSignedToken } = require("../utils/tokenManagement");
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -24,6 +28,39 @@ const registerUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+const loginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const user = await getUserByEmail(email, true);
+
+  if (!user) {
+    return next(createError("User not found", 404));
+  }
+
+  if (!(await comparePasswordHash(password, user.password))) {
+    return next(createError("Invalid credentials", 401));
+  }
+
+  const token = getSignedToken({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    token,
+  });
+});
+
 module.exports = {
   registerUser,
+  loginUser,
 };
