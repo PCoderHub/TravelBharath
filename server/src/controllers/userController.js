@@ -33,11 +33,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
   const user = await getUserByEmail(email, true);
 
-  if (!user) {
-    return next(createError("User not found", 404));
-  }
-
-  if (!(await comparePasswordHash(password, user.password))) {
+  if (!user || !(await comparePasswordHash(password, user.password))) {
     return next(createError("Invalid credentials", 401));
   }
 
