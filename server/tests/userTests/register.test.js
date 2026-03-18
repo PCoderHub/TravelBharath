@@ -1,17 +1,7 @@
-const mongoose = require("mongoose");
 const request = require("supertest");
-require("dotenv").config();
 const app = require("../../src/index");
 const User = require("../../src/models/User");
-
-beforeEach(async () => {
-  await mongoose.connect("mongodb://127.0.0.1:27017/travelbharath");
-});
-
-afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-});
+const { createPasswordHash } = require("../../src/utils/passwordManagement");
 
 describe("POST /api/user/register", () => {
   it("should register a new user", async () => {
@@ -66,9 +56,16 @@ describe("POST /api/user/register", () => {
   });
 
   it("should return error if user already exists", async () => {
+    await User.create({
+      name: "Test User",
+      email: "duplicate@example.com",
+      password: await createPasswordHash("Test#123"),
+      role: "user",
+    });
+
     const res = await request(app).post("/api/user/register").send({
       name: "Test User",
-      email: "testuser@example.com",
+      email: "duplicate@example.com",
       password: "Test#123",
     });
 
