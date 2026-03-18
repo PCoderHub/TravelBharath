@@ -24,8 +24,10 @@ describe("POST /api/user/login", () => {
     expect(res.body.user).toHaveProperty("email", "testloginuser@example.com");
     expect(res.body.user).toHaveProperty("id", expect.any(String));
     expect(res.body.user.password).toBeUndefined();
-    expect(res.body.token).toBeDefined();
-    expect(res.body.token.split(".").length).toBe(3);
+    expect(res.body.access).toBeDefined();
+    expect(res.body.access.split(".").length).toBe(3);
+    expect(res.body.refresh).toBeDefined();
+    expect(res.body.refresh.split(".").length).toBe(3);
     expect(res.body.user._id).toBeUndefined();
     expect(res.body.user.id).toBeDefined();
   });

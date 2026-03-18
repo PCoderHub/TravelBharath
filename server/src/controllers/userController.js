@@ -5,7 +5,13 @@ const {
   createPasswordHash,
   comparePasswordHash,
 } = require("../utils/passwordManagement");
-const { getSignedToken } = require("../utils/tokenManagement");
+const {
+  getSignedToken,
+  getRefreshToken,
+  verifyToken,
+  isRefreshTokenValid,
+  deleteRefreshToken,
+} = require("../utils/tokenManagement");
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -37,7 +43,13 @@ const loginUser = asyncHandler(async (req, res, next) => {
     return next(createError("Invalid credentials", 401));
   }
 
-  const token = getSignedToken({
+  const access = getSignedToken({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  const refresh = await getRefreshToken({
     id: user.id,
     email: user.email,
     role: user.role,
@@ -52,11 +64,59 @@ const loginUser = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
     },
-    token,
+    access,
+    refresh,
+  });
+});
+
+const refreshToken = asyncHandler(async (req, res, next) => {
+  const { refresh } = req.body;
+
+  const isValid = await isRefreshTokenValid(refresh);
+
+  if (!isValid) {
+    return next(createError("Invalid or expired refresh token", 401));
+  }
+
+  const decoded = verifyToken(refresh);
+
+  if (!decoded) {
+    return next(createError("Invalid refresh token", 401));
+  }
+
+  const access = getSignedToken({
+    id: decoded.id,
+    email: decoded.email,
+    role: decoded.role,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Token refreshed successfully",
+    access,
+  });
+});
+
+const logoutUser = asyncHandler(async (req, res, next) => {
+  const { refresh } = req.body;
+
+  const isValid = await isRefreshTokenValid(refresh);
+
+  if (!isValid) {
+    return next(createError("Automatic logout", 401));
+  }
+
+  await deleteRefreshToken(refresh);
+
+  res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
   });
 });
 
 module.exports = {
   registerUser,
   loginUser,
+  refreshToken,
+  logoutUser,
 };

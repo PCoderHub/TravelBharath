@@ -35,3 +35,13 @@ exports.validateLoginUser = (req, res, next) => {
 
   next();
 };
+
+exports.refreshTokenExists = (req, res, next) => {
+  if (!req.body) {
+    return next(createError("No token data found", 400));
+  }
+  if (!req.body.refresh) {
+    return next(createError("Refresh token not provided", 401));
+  }
+  next();
+};
