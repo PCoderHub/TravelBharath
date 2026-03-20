@@ -1,4 +1,4 @@
-export const createError = (message, statusCode) => {
+exports.createError = (message, statusCode) => {
   const error = new Error(message);
   error.statusCode = statusCode;
   error.isOperational = true;
