@@ -1,6 +1,6 @@
 import React from "react";
 
-function Input({ type }) {
+function Input({ type, value, onChange }) {
   let title;
   if (type === "email") {
     title = "Email";
@@ -20,6 +20,8 @@ function Input({ type }) {
         className="border rounded w-90 py-2 px-3 lg:py-5 lg:px-8 w-full md:w-1/2 xl:w-1/3 text-gray-700 text-md lg:text-xl leading-tight focus:outline-none focus:shadow-outline my-2"
         id={type}
         type={type}
+        value={value}
+        onChange={onChange}
         placeholder={title}
       />
     </>

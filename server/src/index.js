@@ -2,8 +2,12 @@ const express = require("express");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const userRoutes = require("./routes/userRoutes");
+const cors = require("cors");
+
+app.use(cors());
 
 app.use(express.json());
+
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res
