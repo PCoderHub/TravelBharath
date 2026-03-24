@@ -11,11 +11,9 @@ export const router = createBrowserRouter([
   {
     path: "/admin",
     Component: Login,
-    children: [
-      {
-        path: "dashboard",
-        Component: Dashboard,
-      },
-    ],
+  },
+  {
+    path: "/admin/dashboard",
+    Component: Dashboard,
   },
 ]);

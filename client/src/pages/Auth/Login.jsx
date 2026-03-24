@@ -1,16 +1,20 @@
 import Input from "../../components/Form/Input";
 import Button from "../../components/Button";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { userLogin } from "../../services/userServices";
 import { saveUserAndTokens } from "../../utils/saveUser";
 import { useNavigate } from "react-router";
+import { useError } from "../../hooks/useError";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const activePromiseRef = useRef(false);
+
   const navigate = useNavigate();
-  //const [ serverError, setServerError ] = useState("");
+  const { notifyError, notifyPromise } = useError();
 
   const handleChange = (setter) => (e) => {
     setter(e.target.value);
@@ -18,25 +22,39 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    if (!email || !password) return notifyError("Email and password required");
+
+    if (activePromiseRef.current) return;
+
+    activePromiseRef.current = true;
+    setIsSubmitting(true);
+
+    const credentials = { email, password };
 
     try {
-      const credentials = { email, password };
-      const { user, access, refresh } = await userLogin(credentials);
+      const { user, access, refresh } = await notifyPromise(
+        userLogin(credentials),
+        {
+          loading: "Logging in...",
+          success: "Logged in successfully",
+        },
+      );
 
       saveUserAndTokens({ user, access, refresh });
 
       navigate("/admin/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
-      setLoading(false);
+      activePromiseRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
-      <h1 className="text-center text-4xl lg:text-6xl xl:text-8xl font-bold text-lime-600 mt-12">
+      <h1 className="text-center text-4xl lg:text-6xl font-bold text-lime-600 mt-12">
         Login
       </h1>
       <form
@@ -50,8 +68,8 @@ function Login() {
           onChange={handleChange(setPassword)}
         />
         <Button
-          activity={loading ? "Logging in..." : "Login"}
-          loading={loading}
+          activity={isSubmitting ? "Logging in..." : "Login"}
+          disabled={isSubmitting}
         />
       </form>
     </>
