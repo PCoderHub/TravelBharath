@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing/Landing";
 import Login from "./pages/Auth/Login";
 import Dashboard from "./pages/Admin/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin/dashboard",
-    Component: Dashboard,
+    element: (
+      <ProtectedRoute requireAdmin>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
 ]);

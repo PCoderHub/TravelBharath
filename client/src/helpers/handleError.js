@@ -5,6 +5,15 @@ export const handleError = (error) => {
       status: 408,
     };
   }
+
+  if (error.message && !error.response) {
+    return {
+      message: error.message,
+      status: error.status || 500,
+      isAuthError: false,
+    };
+  }
+
   return {
     message:
       error.response?.data?.message || error.message || "Something went wrong",

@@ -1,20 +1,21 @@
 import Input from "../../components/Form/Input";
 import Button from "../../components/Button";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { userLogin } from "../../services/userServices";
-import { saveUserAndTokens } from "../../utils/saveUser";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { useError } from "../../hooks/useError";
+import { validateLogin } from "../../utils/validators/validateLogin";
+import { useAuth } from "../../hooks/useAuth.js";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const activePromiseRef = useRef(false);
+  const [error, setError] = useState({});
 
   const navigate = useNavigate();
-  const { notifyError, notifyPromise } = useError();
+  const { notifyPromise } = useError();
+  const { login, isAuthenticated, isAdmin } = useAuth();
 
   const handleChange = (setter) => (e) => {
     setter(e.target.value);
@@ -23,34 +24,38 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) return notifyError("Email and password required");
+    let validationErrors = validateLogin({ email, password });
 
-    if (activePromiseRef.current) return;
+    if (Object.keys(validationErrors).length > 0) {
+      setError(validationErrors);
+      return;
+    }
 
-    activePromiseRef.current = true;
+    setError({});
+    [];
     setIsSubmitting(true);
-
-    const credentials = { email, password };
 
     try {
       const { user, access, refresh } = await notifyPromise(
-        userLogin(credentials),
+        userLogin({ email, password }),
         {
           loading: "Logging in...",
           success: "Logged in successfully",
         },
       );
 
-      saveUserAndTokens({ user, access, refresh });
+      login(user, { access, refresh });
 
       navigate("/admin/dashboard");
     } catch (error) {
       console.error(error);
     } finally {
-      activePromiseRef.current = false;
       setIsSubmitting(false);
     }
   };
+
+  if (isAuthenticated && isAdmin)
+    return <Navigate to="/admin/dashboard" replace />;
 
   return (
     <>
@@ -61,11 +66,17 @@ function Login() {
         onSubmit={handleLogin}
         className="flex flex-col items-center justify-center p-10"
       >
-        <Input type="email" value={email} onChange={handleChange(setEmail)} />
+        <Input
+          type="email"
+          value={email}
+          onChange={handleChange(setEmail)}
+          error={error.email}
+        />
         <Input
           type="password"
           value={password}
           onChange={handleChange(setPassword)}
+          error={error.password}
         />
         <Button
           activity={isSubmitting ? "Logging in..." : "Login"}

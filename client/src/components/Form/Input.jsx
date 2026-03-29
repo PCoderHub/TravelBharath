@@ -1,6 +1,6 @@
 import React from "react";
 
-function Input({ type, value, onChange }) {
+function Input({ type, value, onChange, error = null }) {
   let title;
   if (type === "email") {
     title = "Email";
@@ -24,6 +24,7 @@ function Input({ type, value, onChange }) {
         onChange={onChange}
         placeholder={title}
       />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </>
   );
 }

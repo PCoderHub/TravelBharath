@@ -1,11 +1,11 @@
 import axios from "axios";
-import { handleError } from "../helpers/handleError";
+import { attachRequestInterceptor } from "./interceptors/requestInterceptor";
+import { attachResponseInterceptor } from "./interceptors/responseInterceptor";
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => Promise.reject(handleError(error)),
-);
+attachRequestInterceptor(api);
+attachResponseInterceptor(api);
