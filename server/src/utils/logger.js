@@ -1,4 +1,4 @@
-export const logger = {
+exports.logger = {
   info: (message, data = "") => {
     console.info(`[INFO] ${new Date().toISOString()} - ${message}`, data);
   },
