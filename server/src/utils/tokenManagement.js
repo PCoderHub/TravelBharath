@@ -43,6 +43,14 @@ exports.verifyToken = (token) => {
   return decoded;
 };
 
+exports.verifyAccessToken = (token) => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  if (!decoded) {
+    return null;
+  }
+  return decoded;
+};
+
 exports.isRefreshTokenValid = async (token) => {
   const storedToken = await RefreshToken.findOne({ token });
   return !!storedToken;

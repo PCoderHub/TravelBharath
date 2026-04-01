@@ -23,6 +23,11 @@ const errorHandler = (err, req, res, next) => {
       success: false,
     });
   }
+
+  return res.status(500).json({
+    message: "Internal Server error",
+    success: false,
+  });
 };
 
 module.exports = errorHandler;

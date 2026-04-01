@@ -2,6 +2,7 @@ const express = require("express");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const userRoutes = require("./routes/userRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 const cors = require("cors");
 
 app.use(cors());
@@ -19,6 +20,7 @@ app.use((err, req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", userRoutes);
+app.use("/api/category", categoryRoutes);
 
 app.use(errorHandler);
 
